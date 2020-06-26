@@ -1,4 +1,4 @@
-#Fri Jun 26 14:58:14 SAST 2020
+#Fri Jun 26 22:56:49 SAST 2020
 base.0=/home/rijk/Development/Angela Yu Flutter Course/Section 10 - Quizzler/quizzler-flutter/build/app/intermediates/dex/debug/mergeDexDebug/out/classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

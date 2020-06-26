@@ -1,5 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quizzler/question.dart';
+import 'package:quizzler/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(Quizzler());
 
@@ -20,66 +25,140 @@ class Quizzler extends StatelessWidget {
   }
 }
 
+class ResultIcon extends StatelessWidget {
+  final Question question;
+  final bool answeredCorrectly;
+
+  ResultIcon({this.question, this.answeredCorrectly});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 24.5,
+      alignment: Alignment.center,
+//      color: answeredCorrectly ? Colors.green[900] : Colors.red[900],
+      child: InkWell(
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        child: Icon(
+          answeredCorrectly ? Icons.check : Icons.close,
+          color: answeredCorrectly ? Colors.green : Colors.red,
+        ),
+        onTap: () {
+          Alert(
+            context: context,
+            type: answeredCorrectly ? AlertType.success : AlertType.error,
+            style: AlertStyle(
+              isCloseButton: false,
+            ),
+            title: answeredCorrectly ? "Correct" : "Incorrect",
+            desc: "${this.question.text}\n\nThe correct answer is ${this.question.answer.toString().toUpperCase()}",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                width: 120,
+              )
+            ],
+          ).show();
+        },
+      ),
+    );
+  }
+}
+
 class QuizPage extends StatefulWidget {
   @override
   _QuizPageState createState() => _QuizPageState();
 }
 
 class _QuizPageState extends State<QuizPage> {
-  List<Icon> scoreKeeper = [];
+  List<Widget> scoreKeeper = [];
+  int numCorrect = 0;
+  int numAsked = 0;
 
-  List<Question> questionBank = [
-    Question(
-      text: 'You can lead a cow down stairs but not up stairs.',
-      answer: false,
-    ),
-    Question(
-      text: 'Approximately one quarter of human bones are in the feet.',
-      answer: true,
-    ),
-    Question(
-      text: 'A slug\'s blood is green.',
-      answer: true,
-    ),
-  ];
+  List<Widget> _fillUpScoreKeeper() {
+    List<Widget> returnList = [];
+    returnList.addAll(scoreKeeper);
+    for (int i = returnList.length; i < quizBrain.getNumQuestions(); i++) {
+      returnList.add(
+        Container(
+          width: 24.5,
+          alignment: Alignment.center,
+          child: Text(
+            '?',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+            ),
+          )
+        ),
+      );
+    }
+    return returnList;
+  }
 
-  int questionNumber = 0;
+  void _reset() {
+    setState(() {
+      quizBrain.reset();
+      this.scoreKeeper = [];
+      this.numCorrect = 0;
+      this.numAsked = 0;
+    });
+  }
 
   void _answer(bool answer) {
-    bool correctAnswer = questionBank[questionNumber].answer;
+    bool correctAnswer = quizBrain.getQuestionAnswer();
     if (answer == correctAnswer) {
-      _addCorrect();
+      setState(() {
+        scoreKeeper.add(ResultIcon(
+          answeredCorrectly: true,
+          question: quizBrain.getQuestion(),
+        ));
+      });
+      numCorrect++;
     } else {
-      _addWrong();
+      setState(() {
+        scoreKeeper.add(ResultIcon(
+          answeredCorrectly: false,
+          question: quizBrain.getQuestion(),
+        ));
+      });
     }
-    _incrementQuestionNumber();
-  }
-
-  void _addCorrect() {
+    numAsked++;
     setState(() {
-      scoreKeeper.add(Icon(
-        Icons.check,
-        color: Colors.green,
-      ));
+      quizBrain.nextQuestion();
     });
-  }
-
-  void _addWrong() {
-    setState(() {
-      scoreKeeper.add(Icon(
-        Icons.close,
-        color: Colors.red,
-      ));
-    });
-  }
-
-  void _incrementQuestionNumber() {
-    setState(() {
-      if (this.questionNumber >= this.questionBank.length - 1)
-        this.questionNumber = 0;
-      else
-        this.questionNumber++;
-    });
+    if (!quizBrain.hasNext()) {
+      Alert(
+        context: context,
+        type: AlertType.success,
+        style: AlertStyle(
+          isCloseButton: false,
+        ),
+        title: "Congrats!",
+        desc: "You scored $numCorrect/$numAsked.",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Try again",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () {
+              this._reset();
+              Navigator.pop(context);
+            },
+            width: 120,
+          )
+        ],
+      ).show();
+    }
   }
 
   @override
@@ -91,7 +170,7 @@ class _QuizPageState extends State<QuizPage> {
         SizedBox(
           height: 30,
           child: Row(
-            children: scoreKeeper,
+            children: _fillUpScoreKeeper(),
           ),
         ),
         SizedBox(
@@ -103,7 +182,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                this.questionBank[this.questionNumber].text,
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -119,7 +198,7 @@ class _QuizPageState extends State<QuizPage> {
               child: Container(
                 height: 100,
                 child: FlatButton(
-                  color: Colors.blue[600],
+                  color: Colors.green[600],
                   child: Text(
                     'True',
                     style: TextStyle(
@@ -138,7 +217,7 @@ class _QuizPageState extends State<QuizPage> {
               child: Container(
                 height: 100,
                 child: FlatButton(
-                  color: Colors.blue[600],
+                  color: Colors.red[600],
                   child: Text(
                     'False',
                     style: TextStyle(
