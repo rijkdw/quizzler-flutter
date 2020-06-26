@@ -10,7 +10,7 @@ class Quizzler extends StatelessWidget {
         backgroundColor: Colors.grey.shade900,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
             child: QuizPage(),
           ),
         ),
@@ -25,19 +25,65 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  List<Icon> scoreKeeper = [];
+
+  List<String> _questions = [
+    'You can lead a cow down stairs but not up stairs.',
+    'Approximately one quarter of human bones are in the feet.',
+    'A slug\'s blood is green.',
+  ];
+
+  int _questionNumber = 0;
+
+  void _answer() {
+    setState(() {
+      if (this._questionNumber >= this._questions.length-1)
+        this._questionNumber = 0;
+      else
+        this._questionNumber++;
+    });
+  }
+
+  void _addCorrect() {
+    setState(() {
+      scoreKeeper.add(Icon(
+        Icons.check,
+        color: Colors.green,
+      ));
+    });
+  }
+
+  void _addWrong() {
+    setState(() {
+      scoreKeeper.add(Icon(
+        Icons.close,
+        color: Colors.red,
+      ));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
+        SizedBox(
+          height: 30,
+          child: Row(
+            children: scoreKeeper,
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
         Expanded(
           flex: 5,
           child: Padding(
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question text will go.',
+                this._questions[this._questionNumber],
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -51,9 +97,9 @@ class _QuizPageState extends State<QuizPage> {
           children: <Widget>[
             Expanded(
               child: Container(
-                height: 120,
+                height: 100,
                 child: FlatButton(
-                  color: Colors.blueGrey,
+                  color: Colors.blue[600],
                   child: Text(
                     'True',
                     style: TextStyle(
@@ -61,20 +107,18 @@ class _QuizPageState extends State<QuizPage> {
                       fontSize: 20.0,
                     ),
                   ),
-                  onPressed: () {
-                    //The user picked true.
-                  },
+                  onPressed: () => _answer(),
                 ),
               ),
             ),
             SizedBox(
-              width: 10,
+              width: 20,
             ),
             Expanded(
               child: Container(
-                height: 120,
+                height: 100,
                 child: FlatButton(
-                  color: Colors.blueGrey,
+                  color: Colors.blue[600],
                   child: Text(
                     'False',
                     style: TextStyle(
@@ -82,18 +126,12 @@ class _QuizPageState extends State<QuizPage> {
                       color: Colors.white,
                     ),
                   ),
-                  onPressed: () {
-                    //The user picked false.
-                  },
+                  onPressed: () => _answer(),
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(
-          height: 20,
-        )
-        //TODO: Add a Row here as your score keeper
       ],
     );
   }
