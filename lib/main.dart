@@ -33,15 +33,22 @@ class _QuizPageState extends State<QuizPage> {
     'A slug\'s blood is green.',
   ];
 
+  List<bool> _answers = [
+    false,
+    true,
+    true,
+  ];
+
   int _questionNumber = 0;
 
-  void _answer() {
-    setState(() {
-      if (this._questionNumber >= this._questions.length-1)
-        this._questionNumber = 0;
-      else
-        this._questionNumber++;
-    });
+  void _answer(bool answer) {
+    bool correctAnswer = _answers[_questionNumber];
+    if (answer == correctAnswer) {
+      _addCorrect();
+    } else {
+      _addWrong();
+    }
+    _incrementQuestionNumber();
   }
 
   void _addCorrect() {
@@ -59,6 +66,15 @@ class _QuizPageState extends State<QuizPage> {
         Icons.close,
         color: Colors.red,
       ));
+    });
+  }
+
+  void _incrementQuestionNumber() {
+    setState(() {
+      if (this._questionNumber >= this._questions.length - 1)
+        this._questionNumber = 0;
+      else
+        this._questionNumber++;
     });
   }
 
@@ -107,7 +123,7 @@ class _QuizPageState extends State<QuizPage> {
                       fontSize: 20.0,
                     ),
                   ),
-                  onPressed: () => _answer(),
+                  onPressed: () => _answer(true),
                 ),
               ),
             ),
@@ -126,7 +142,7 @@ class _QuizPageState extends State<QuizPage> {
                       color: Colors.white,
                     ),
                   ),
-                  onPressed: () => _answer(),
+                  onPressed: () => _answer(false),
                 ),
               ),
             ),
