@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quizzler/question.dart';
 
 void main() => runApp(Quizzler());
 
@@ -27,22 +28,25 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
-  List<String> _questions = [
-    'You can lead a cow down stairs but not up stairs.',
-    'Approximately one quarter of human bones are in the feet.',
-    'A slug\'s blood is green.',
+  List<Question> questionBank = [
+    Question(
+      text: 'You can lead a cow down stairs but not up stairs.',
+      answer: false,
+    ),
+    Question(
+      text: 'Approximately one quarter of human bones are in the feet.',
+      answer: true,
+    ),
+    Question(
+      text: 'A slug\'s blood is green.',
+      answer: true,
+    ),
   ];
 
-  List<bool> _answers = [
-    false,
-    true,
-    true,
-  ];
-
-  int _questionNumber = 0;
+  int questionNumber = 0;
 
   void _answer(bool answer) {
-    bool correctAnswer = _answers[_questionNumber];
+    bool correctAnswer = questionBank[questionNumber].answer;
     if (answer == correctAnswer) {
       _addCorrect();
     } else {
@@ -71,10 +75,10 @@ class _QuizPageState extends State<QuizPage> {
 
   void _incrementQuestionNumber() {
     setState(() {
-      if (this._questionNumber >= this._questions.length - 1)
-        this._questionNumber = 0;
+      if (this.questionNumber >= this.questionBank.length - 1)
+        this.questionNumber = 0;
       else
-        this._questionNumber++;
+        this.questionNumber++;
     });
   }
 
@@ -99,7 +103,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                this._questions[this._questionNumber],
+                this.questionBank[this.questionNumber].text,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
