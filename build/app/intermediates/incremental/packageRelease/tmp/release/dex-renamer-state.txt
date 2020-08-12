@@ -1,0 +1,4 @@
+#Fri Jun 26 23:47:48 SAST 2020
+base.0=/home/rijk/Development/Angela Yu Flutter Course/Section 10 - Quizzler/quizzler-flutter/build/app/intermediates/transforms/r8/release/0/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
